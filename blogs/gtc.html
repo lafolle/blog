@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>Go Timed Command</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <style type="text/css">
+        .blog-title {
+
+        }
+        .blog-body {
+            font-size: 20px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body style="font-family: Consolas, monaco, monospace;">
+    <h2 style="text-align: center">Go Timed Command</h2>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 blog-body">
+                Problem occured when i was handling servers and had to run a command for specific period of time,
+                get its output and analyze.
+
+                gtc is a computer program which runs a command for a specific period of time and then kills it.
+                This blog post is a code walkthrough of gtc.
+
+                <h3>Usage</h3>
+
+                <p>An instance of usage looks like this: <code>gtc -t=3s -s ls -R /</code> which lists contents of root directory recursively for at max 3 seconds. The <code>-t</code> argument tells gtc for how long the given command should run, <code>-s</code> argumet tells gtc whether to preserve return exit status of given command or not.</p>
+
+                <p>By default, <code>-t</code> is around 288 years, which is same as the maximum range of duration Go can handle. <code>-s</code> is <var>false</var>, ie gtc will return its own exit status rather than that of the commmand it runs.</p>
+
+         </div>
+    </div>
+
+</body>
+</html>
