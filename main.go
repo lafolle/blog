@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	SERVE_ADDR = "localhost:7080"
+	SERVE_ADDR = "localhost:8080"
 )
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
