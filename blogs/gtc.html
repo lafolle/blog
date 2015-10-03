@@ -10,7 +10,7 @@
 
         }
         .blog-body {
-            font-size: 20px;
+            font-size: 16px;
             margin-top: 20px;
         }
     </style>
@@ -21,14 +21,14 @@
     <div class="container">
 
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-offset-2 col-md-8">
                 <h2 style="text-align: center; border-bottom: 1px black solid;">Go Timed Command</h2>
-                <h5 class=""><a href="https://github.com/lafolle/gtc">https://github.com/lafolle/gtc</a></h5>
+                <a href="https://github.com/lafolle/gtc">https://github.com/lafolle/gtc</a>
             </div>
         </div>
 
         <div class="row">
-            <div class="col-md-12 blog-body">
+            <div class="col-md-offset-2 col-md-8 blog-body">
                 Problem occured when i was handling servers and had to run a command for specific period of time,
                 get its output and analyze.
 
@@ -40,6 +40,47 @@
                 <p>An instance of usage looks like this: <code>gtc -t=3s -s ls -R /</code> which lists contents of root directory recursively for at max 3 seconds. The <code>-t</code> argument tells gtc for how long the given command should run, <code>-s</code> argumet tells gtc whether to preserve return exit status of given command or not.</p>
 
                 <p>By default, <code>-t</code> is around 288 years, which is same as the maximum range of duration Go can handle. <code>-s</code> is <var>false</var>, ie gtc will return its own exit status rather than that of the commmand it runs.</p>
+
+                <h3>Flow</h3>
+                <p>Protoganist function of the whole program is <code>RunCmd</code>, which runs <code>Cmd</code> for <code>dur</code> seconds and return status of <code>Cmd</code> if <code>preservestatus</code> is st to <code>true</code> otherwise, it returns exit status of <code>gtc</code>.</p>
+
+                <p>
+                    RunCmd sets up 2 channels.
+                    1. done
+                    2. sigchan
+
+                    <code>done</code> channel is used to notify the RunCmd that the cmd to be executed has been successfull executed and has returned.
+                    <code>sigchan</code> is used to relay all the signals coming to <code>gtc</code>, to <code>cmd</code> being executed.
+
+                    <p>
+                        Then comes the way we handle writing to channels:
+                    </p>
+
+                    <pre>
+    select {
+    case err := <-done:
+        if err != nil {
+            log.Fatal(err)
+        }   
+        if *preservestatus == true {
+            ws, _ := cmd.ProcessState.Sys().(syscall.WaitStatus)
+            os.Exit(ws.ExitStatus())
+        }   
+    case <-time.After(*duration):
+        fmt.Println("TIMEOUT")
+        if err := cmd.Process.Kill(); err != nil {
+            log.Fatal(err)
+        }   
+    }
+                    </pre>
+
+                    We have 2 possibilities, either cmd will be completed before <code>duration</code> seconds, or <code>duration</code> seconds will timeout.
+
+                    cmd writes to channel the error associated which it encountered when it was executed. If value on the channel is nil, it means cmd ran successfully, othewise some error occured. This is exactly what we check for in first case of select statement. If err is not nil, which means some error had occured while executing cmd. On the other hand if err is not equal to nil, we crash the program by a fatal call to log.
+
+                    If <code>duration</code> seconds passed before any anything is written to nil, or other way to say is, if <code>duration</code> seconds passed before cmd could travel itself to destination, 
+                    we kill the process assiciated with cmd.
+                    </p>
 
          </div>
     </div>
